@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            padding: 20px;
+            font-family: "Arial", sans-serif;
+            font-size: 18px;
+        }
+
+        h1 {
+            padding: 10px;
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #score {
+            padding: 10px;
+            font-size: 20px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #counter,
+        #quiz,
+        #results {
+            padding: 10px;
+            font-size: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            font-size: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #quiz {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+        }
+
+        .answers label {
+            display: block;
+            padding: 8px;
+            font-size: 18px;
+            background-color: #fff;
+            border-radius: 4px;
+            margin: 8px 0;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .answers label:hover {
+            background-color: #f9f9f9;
+        }
+
+        #play-again {
+            margin-top: 20px;
+            font-size: 18px;
+            background-color: #ff7675;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #play-again:hover {
+            background-color: #d63031;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease;
+        }
+    </style>
+    <title>TriviaStream</title>
+</head>
+
+<body style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+
+<h1 class="fade-in">TriviaStream</h1>
+<div id="score" class="fade-in">Score: 0</div>
+<div id="timer" class="fade-in">Time: 00:00</div>
+<div id="counter" class="fade-in">Question: 1/10</div>
+
+<div id="quiz" class="fade-in"></div>
+<div id="results" class="fade-in"></div>
+<button id="play-again" style="display: none;" class="fade-in">Play Again</button>
+
+<script>
+    // Sample trivia questions
+    const quizQuestions = [
+        {
+            question: "What is the capital of France?",
+            answers: {
+                a: "New York",
+                b: "Delhi",
+                c: "Paris",
+                d: "Rome"
+            },
+            correctAnswer: "c"
+        },
+        {
+            question: "Who discovered penicillin?",
+            answers: {
+                a: "Marie Curie",
+                b: "Alexander Fleming",
+                c: "Albert Einstein",
+                d: "Isaac Newton"
+            },
+            correctAnswer: "b"
+        },
+        {
+            question: "Which planet is known as the Red Planet?",
+            answers: {
+                a: "Mars",
+                b: "Venus",
+                c: "Jupiter",
+                d: "Neptune"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "What is the chemical symbol for gold?",
+            answers: {
+                a: "Ag",
+                b: "Au",
+                c: "Hg",
+                d: "Cu"
+            },
+            correctAnswer: "b"
+        },
+        {
+            question: "Who painted the Mona Lisa?",
+            answers: {
+                a: "Vincent van Gogh",
+                b: "Pablo Picasso",
+                c: "Leonardo da Vinci",
+                d: "Michelangelo"
+            },
+            correctAnswer: "c"
+        },
+        {
+            question: "What is the tallest mountain in the world?",
+            answers: {
+                a: "Mount Kilimanjaro",
+                b: "Mount Everest",
+                c: "Mount Fuji",
+                d: "Mount McKinley"
+            },
+            correctAnswer: "b"
+        },
+        {
+            question: "Which country is known for inventing tea?",
+            answers: {
+                a: "China",
+                b: "India",
+                c: "Japan",
+                d: "England"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "Who wrote the play 'Romeo and Juliet'?",
+            answers: {
+                a: "William Shakespeare",
+                b: "Charles Dickens",
+                c: "Jane Austen",
+                d: "Mark Twain"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "What is the largest organ in the human body?",
+            answers: {
+                a: "Liver",
+                b: "Brain",
+                c: "Heart",
+                d: "Skin"
+            },
+            correctAnswer: "d"
+        },
+        {
+            question: "Which animal is known as the 'King of the Jungle'?",
+            answers: {
+                a: "Tiger",
+                b: "Lion",
+                c: "Elephant",
+                d: "Giraffe"
+            },
+            correctAnswer: "b"
+        },
+        {
+            question: "Who was the first person to step on the moon?",
+            answers: {
+                a: "Buzz Aldrin",
+                b: "Neil Armstrong",
+                c: "Yuri Gagarin",
+                d: "Alan Shepard"
+            },
+            correctAnswer: "b"
+        },
+        {
+            question: "Which planet is known as the Blue Planet?",
+            answers: {
+                a: "Earth",
+                b: "Mars",
+                c: "Neptune",
+                d: "Saturn"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "Who wrote the famous novel 'Pride and Prejudice'?",
+            answers: {
+                a: "Jane Austen",
+                b: "Emily Bronte",
+                c: "Charlotte Bronte",
+                d: "Virginia Woolf"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "Which city is the capital of Australia?",
+            answers: {
+                a: "Melbourne",
+                b: "Sydney",
+                c: "Canberra",
+                d: "Brisbane"
+            },
+            correctAnswer: "c"
+        },
+        {
+            question: "What is the chemical symbol for sodium?",
+            answers: {
+                a: "Sa",
+                b: "So",
+                c: "Na",
+                d: "No"
+            },
+            correctAnswer: "c"
+        },
+        {
+            question: "Who is the artist of the famous painting 'The Starry Night'?",
+            answers: {
+                a: "Pablo Picasso",
+                b: "Salvador Dali",
+                c: "Claude Monet",
+                d: "Vincent van Gogh"
+            },
+            correctAnswer: "d"
+        },
+        {
+            question: "What is the largest ocean in the world?",
+            answers: {
+                a: "Atlantic Ocean",
+                b: "Indian Ocean",
+                c: "Arctic Ocean",
+                d: "Pacific Ocean"
+            },
+            correctAnswer: "d"
+        },
+        {
+            question: "Who is the Greek god of thunder?",
+            answers: {
+                a: "Zeus",
+                b: "Hades",
+                c: "Apollo",
+                d: "Poseidon"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "What is the primary language spoken in Brazil?",
+            answers: {
+                a: "English",
+                b: "Spanish",
+                c: "Portuguese",
+                d: "Italian"
+            },
+            correctAnswer: "c"
+        },
+        {
+            question: "Which animal is a symbol of wisdom?",
+            answers: {
+                a: "Owl",
+                b: "Eagle",
+                c: "Lion",
+                d: "Snake"
+            },
+            correctAnswer: "a"
+        },
+        {
+            question: "Who is the author of the 'Harry Potter' book series?",
+            answers: {
+                a: "J.R.R. Tolkien",
+                b: "J.K. Rowling",
+                c: "George R.R. Martin",
+                d: "Stephen King"
+            },
+            correctAnswer: "b"
+        }
+    ];
+    let currentQuestion = 0; // Track the current question index
+    let questionsAttempted = 0; // Track the number of questions attempted
+    let startTime = null; // Track the start time of the quiz
+    let timerInterval; // Variable to store the interval ID for the timer
+    let score = 0;
+    let questionScores = [];
+
+    // Function to shuffle an array using the Fisher-Yates algorithm
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // Shuffle the quiz questions array
+    shuffleArray(quizQuestions);
+
+    // Function to display the current question and answers
+    function showQuestion() {
+        const quizContainer = document.getElementById("quiz");
+        const question = quizQuestions[currentQuestion];
+
+        document.getElementById("counter").innerText = `Question: ${
+            currentQuestion + 1
+        }/10`;
+
+        let output = `
+        <div class="question">${question.question}</div>
+        <div class="answers">
+    `;
+
+        for (let letter in question.answers) {
+            output += `
+            <label>
+                <input type="radio" name="question" value="${letter}">
+                ${letter} : ${question.answers[letter]}
+            </label>
+        `;
+        }
+
+        output += "</div>";
+        quizContainer.innerHTML = output;
+    }
+
+    function handleRadioChange() {
+        const userAnswer = document.querySelector('input[name="question"]:checked');
+        const resultsContainer = document.getElementById("results");
+
+        if (userAnswer) {
+            const answer = userAnswer.value;
+            const question = quizQuestions[currentQuestion];
+
+            if (answer === question.correctAnswer) {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                let questionScore = 0;
+
+                if (elapsedTime >= 1 && elapsedTime <= 3) {
+                    questionScore = 210;
+                } else if (elapsedTime >= 4 && elapsedTime <= 11) {
+                    questionScore = 150;
+                } else if (elapsedTime >= 12 && elapsedTime <= 18) {
+                    questionScore = 120;
+                } else if (elapsedTime >= 19 && elapsedTime <= 24) {
+                    questionScore = 90;
+                } else {
+                    questionScore = 25;
+                }
+
+                score += questionScore;
+                document.getElementById("score").innerText = `Score: ${score}`;
+                resultsContainer.innerHTML = "Correct!";
+                resultsContainer.style.color = "green";
+                questionsAttempted++;
+                currentQuestion++; // Move to the next question
+
+                if (questionsAttempted < 10) {
+                    setTimeout(() => {
+                        resultsContainer.innerHTML = ""; // Remove the "Correct!" message
+                        showQuestion(); // Display the next question after a delay
+                    }, 1000);
+                } else {
+                    resultsContainer.innerHTML = `Game Done!`;
+                    document.getElementById("play-again").style.display = "block"; // Show the "Play Again" button
+                    clearInterval(timerInterval); // Stop the timer when all questions are answered correctly
+                }
+            }
+            else {
+                document.getElementById("score").innerText = `Score: ${score}`;
+            //
+                resultsContainer.innerHTML = "Wrong answer. Try Again!";
+                resultsContainer.style.color = "red";
+            }
+            if (questionsAttempted === 10) {
+                clearInterval(timerInterval);
+            } // Stop the timer
+        }
+    }
+
+
+    // Function to update the timer display
+    function updateTimer() {
+        const timerContainer = document.getElementById("timer");
+
+        if (startTime) {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = elapsedTime % 60;
+
+            timerContainer.innerText = `Time: ${padZero(
+                minutes
+            )}:${padZero(seconds)}`;
+            if (questionsAttempted === 10) {
+                clearInterval(timerInterval); // Stop the timer when all questions are completed
+            }
+        }
+    }
+
+    // Helper function to pad a number with leading zero if needed
+    function padZero(number) {
+        return number.toString().padStart(2, "0");
+    }
+
+    document.getElementById("play-again").addEventListener("click", () => {
+        // Reset variables
+        currentQuestion = 0;
+        questionsAttempted = 0;
+        shuffleArray(quizQuestions);
+        showQuestion(); // Show the first question
+        document.getElementById("play-again").style.display = "none"; // Hide the "Play Again" button
+
+        // Reset timer
+        startTime = Date.now();
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000); // Start the timer interval again
+        score = 0;
+        document.getElementById("score").innerText = "Score: 0";
+    });
+
+    // Show the first question when the page loads
+    showQuestion();
+    // Start the timer
+    startTime = Date.now();
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+
+    // Listen for radio button change event
+    const quizContainer = document.getElementById("quiz");
+    quizContainer.addEventListener("change", handleRadioChange);
+</script>
+</body>
+</html>
